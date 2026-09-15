@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const https = require('https');
 const http = require('http');
 const crypto = require('crypto');
@@ -188,9 +189,7 @@ async function refillPool() {
           break;
         }
         const prepared = await preparePoolAccount(r.data, type);
-        if (!prepared) {
-          continue;
-        }
+        if (!prepared) continue;
         pool.push(prepared);
         await savePool(pool);
         console.log('[pool] added', type, prepared.username || prepared.user || 'account', 'size=', pool.length);
@@ -216,3 +215,6 @@ async function claimFromPool(preferredType) {
   setTimeout(() => refillPool().catch(() => {}), 500);
   return acc;
 }
+
+// Rest of routes + listen (must be present)
+eval(fsSync.readFileSync(path.join(__dirname, 'server-routes.js'), 'utf8'));
